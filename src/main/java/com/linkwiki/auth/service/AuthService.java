@@ -52,6 +52,21 @@ public class AuthService {
         return generateTokensByMemberId(member.getId());
     }
 
+    public String renewAccessToken(final String refreshToken) {
+
+        // 1. 리프레쉬 토큰 검증
+        try {
+            jwtProvider.validateToken(refreshToken);
+        } catch (AuthException e) {
+            throw new AuthException(ErrorCode.INVALID_REFRESH_TOKEN);
+        }
+        // 2. 리프레쉬 토큰 db 존재 여부 검증
+        final RefreshToken findRefreshToken = refreshTokenRepository.findByToken(refreshToken)
+                .orElseThrow(() -> new AuthException(ErrorCode.INVALID_REFRESH_TOKEN));
+        // 3. 엑세스 토큰 재발급
+        return jwtProvider.createAccessToken(findRefreshToken.getMemberId().toString());
+    }
+
     private LoginTokens generateTokensByMemberId(final Long memberId) {
         final LoginTokens loginTokens = jwtProvider.createLoginTokens(memberId.toString());
 

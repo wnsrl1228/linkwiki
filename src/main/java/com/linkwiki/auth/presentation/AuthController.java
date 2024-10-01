@@ -1,6 +1,7 @@
 package com.linkwiki.auth.presentation;
 
 import com.linkwiki.auth.dto.LoginTokens;
+import com.linkwiki.auth.dto.request.AccessTokenRequest;
 import com.linkwiki.auth.dto.request.LoginRequest;
 import com.linkwiki.auth.dto.request.SignUpRequest;
 import com.linkwiki.auth.dto.response.TokenResponse;
@@ -59,5 +60,13 @@ public class AuthController {
 
         response.addHeader(SET_COOKIE, cookie1.toString());
         return ResponseEntity.ok().body(new TokenResponse(token.getAccessToken()));
+    }
+
+    @PostMapping("/auth/token")
+    public ResponseEntity<TokenResponse> refreshAccessToken(
+            @RequestBody final AccessTokenRequest accessTokenRequest
+    ) {
+        final String accessToken = authService.renewAccessToken(accessTokenRequest.getRefreshToken());
+        return ResponseEntity.ok().body(new TokenResponse(accessToken));
     }
 }

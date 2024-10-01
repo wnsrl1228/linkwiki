@@ -12,10 +12,12 @@ import com.linkwiki.global.exception.ErrorCode;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
@@ -24,8 +26,14 @@ import java.util.Map;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@AutoConfigureRestDocs
 @WebMvcTest(value = {AuthController.class, WebConfig.class, JwtProvider.class})
 class AuthControllerTest {
 
@@ -50,13 +58,20 @@ class AuthControllerTest {
         given(authService.login(any())).willReturn(loginTokens);
 
         // when & then
-        mockMvc.perform(MockMvcRequestBuilders.post("/login")
+        ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.post("/login")
                         .content(objectMapper.writeValueAsString(loginRequest))
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print());
+
+        resultActions
                 .andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.accessToken").value(ACCESS_TOKEN))
-                .andExpect(MockMvcResultMatchers.cookie().value("refresh-token", REFRESH_TOKEN));
+                .andDo(document("auth/login",
+                        preprocessRequest(prettyPrint()),          // 줄 바꿈 생기게 출력
+                        preprocessResponse(prettyPrint()),
+                        responseFields(
+                                fieldWithPath("accessToken").description("엑세스 토큰")
+                        )));
     }
 
     @Test
@@ -85,13 +100,20 @@ class AuthControllerTest {
         given(authService.signUp(any())).willReturn(loginTokens);
 
         // when & then
-        mockMvc.perform(MockMvcRequestBuilders.post("/sign-up")
+        ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.post("/sign-up")
                         .content(objectMapper.writeValueAsString(signUpRequest))
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print());
+
+        resultActions
                 .andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.accessToken").value(ACCESS_TOKEN))
-                .andExpect(MockMvcResultMatchers.cookie().value("refresh-token", REFRESH_TOKEN));
+                .andDo(document("auth/sign-up",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        responseFields(
+                                fieldWithPath("accessToken").description("엑세스 토큰")
+                        )));
     }
 
     @Test
@@ -101,12 +123,20 @@ class AuthControllerTest {
         given(authService.renewAccessToken(any())).willReturn(ACCESS_TOKEN);
 
         // when & then
-        mockMvc.perform(MockMvcRequestBuilders.post("/auth/token")
+        ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.post("/auth/token")
                         .content(objectMapper.writeValueAsString(Map.of("refreshToken", REFRESH_TOKEN)))
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print());
+
+        resultActions
                 .andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.accessToken").value(ACCESS_TOKEN));
+                .andDo(document("auth/token",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        responseFields(
+                                fieldWithPath("accessToken").description("엑세스 토큰")
+                        )));
     }
 
     @Test

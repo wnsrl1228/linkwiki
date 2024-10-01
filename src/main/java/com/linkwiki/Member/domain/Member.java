@@ -43,4 +43,12 @@ public class Member {
 
     @LastModifiedDate
     private LocalDateTime updatedAt;
+
+    public Member(String username, String password, String nickname) {
+        this.username = username;
+        this.password = password;
+        this.nickname = nickname;
+        this.profileImgUrl = "";
+        this.status = MemberState.ACTIVE;
+    }
 }

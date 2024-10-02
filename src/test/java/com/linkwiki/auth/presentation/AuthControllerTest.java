@@ -9,6 +9,7 @@ import com.linkwiki.auth.service.AuthService;
 import com.linkwiki.global.config.WebConfig;
 import com.linkwiki.global.exception.AuthException;
 import com.linkwiki.global.exception.ErrorCode;
+import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -124,7 +125,7 @@ class AuthControllerTest {
 
         // when & then
         ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.post("/auth/token")
-                        .content(objectMapper.writeValueAsString(Map.of("refreshToken", REFRESH_TOKEN)))
+                        .cookie(new Cookie("refresh-token", REFRESH_TOKEN))
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print());
@@ -147,7 +148,7 @@ class AuthControllerTest {
 
         // when & then
         mockMvc.perform(MockMvcRequestBuilders.post("/auth/token")
-                        .content(objectMapper.writeValueAsString(Map.of("refreshToken", REFRESH_TOKEN)))
+                        .cookie(new Cookie("refresh-token", REFRESH_TOKEN))
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized())

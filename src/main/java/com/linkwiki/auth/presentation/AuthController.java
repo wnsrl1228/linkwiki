@@ -1,7 +1,6 @@
 package com.linkwiki.auth.presentation;
 
 import com.linkwiki.auth.dto.LoginTokens;
-import com.linkwiki.auth.dto.request.AccessTokenRequest;
 import com.linkwiki.auth.dto.request.LoginRequest;
 import com.linkwiki.auth.dto.request.SignUpRequest;
 import com.linkwiki.auth.dto.response.TokenResponse;
@@ -11,6 +10,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -64,9 +64,9 @@ public class AuthController {
 
     @PostMapping("/auth/token")
     public ResponseEntity<TokenResponse> refreshAccessToken(
-            @RequestBody final AccessTokenRequest accessTokenRequest
+            @CookieValue("refresh-token") final String refreshToken
     ) {
-        final String accessToken = authService.renewAccessToken(accessTokenRequest.getRefreshToken());
+        final String accessToken = authService.renewAccessToken(refreshToken);
         return ResponseEntity.ok().body(new TokenResponse(accessToken));
     }
 }

@@ -16,4 +16,8 @@ public class CategoryTag {
 
     @Column(nullable = false, unique = true)
     private String name;
+
+    public CategoryTag(String name) {
+        this.name = name;
+    }
 }

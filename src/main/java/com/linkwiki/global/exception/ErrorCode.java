@@ -11,6 +11,7 @@ public enum ErrorCode {
     FAILED_TO_LOGIN(1000, "아이디와 패스워드가 일치하지 않습니다."),
     DUPLICATE_USERID(1010, "이미 존재하는 아이디입니다."),
     DUPLICATE_NICKNAME(1011, "이미 존재하는 닉네임입니다."),
+    DUPLICATE_LINK_URL(1012, "이미 존재하는 링크입니다."),
 
     INVALID_TOKEN(4002, "유효하지 않은 토큰입니다."),
     EXPIRED_TOKEN(4003, "만료된 토큰입니다."),

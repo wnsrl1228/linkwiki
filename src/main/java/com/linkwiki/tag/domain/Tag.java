@@ -32,4 +32,9 @@ public class Tag {
 
     @LastModifiedDate
     private LocalDateTime updatedAt;
+
+    public Tag(String name) {
+        this.name = name;
+        state = TagState.REVIEW;
+    }
 }

@@ -22,4 +22,10 @@ public class LinkHasTag {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tag_id")
     private Tag tag;
+
+    public LinkHasTag(Link link, Tag tag) {
+        this.link = link;
+        this.tag = tag;
+        link.getLinkHasTags().add(this);
+    }
 }

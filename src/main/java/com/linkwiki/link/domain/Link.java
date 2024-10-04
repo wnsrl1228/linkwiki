@@ -1,6 +1,7 @@
 package com.linkwiki.link.domain;
 
 import com.linkwiki.Member.domain.Member;
+import com.linkwiki.link.dto.request.LinkCreateRequest;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -10,6 +11,8 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -25,9 +28,12 @@ public class Link {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @OneToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_tag")
     private CategoryTag categoryTag;
+
+    @OneToMany(mappedBy = "link")
+    private List<LinkHasTag> linkHasTags = new ArrayList<>();
 
     @Column(nullable = false, unique = true)
     private String url;
@@ -56,4 +62,16 @@ public class Link {
 
     @LastModifiedDate
     private LocalDateTime updatedAt;
+
+    public Link(Member member, CategoryTag categoryTag, String url, String description) {
+        this.member = member;
+        this.categoryTag = categoryTag;
+        this.url = url;
+        this.description = description;
+        state = LinkState.REVIEW;
+    }
+
+    public void changeState(LinkState state) {
+        this.state = state;
+    }
 }

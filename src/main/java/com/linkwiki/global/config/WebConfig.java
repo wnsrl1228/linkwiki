@@ -33,7 +33,7 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addInterceptor(new AuthHandlerInterceptor(jwtProvider))
                 .addPathPatterns("/**")
                 .excludePathPatterns(
-                        "/",
+                        "/links/search",
                         "/login",
                         "/auth/token",
                         "/sign-up",

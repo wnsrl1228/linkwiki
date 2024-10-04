@@ -1,6 +1,8 @@
 package com.linkwiki.tag.service;
 
 import com.linkwiki.tag.domain.Tag;
+import com.linkwiki.tag.dto.TagElement;
+import com.linkwiki.tag.dto.response.TagsResponse;
 import com.linkwiki.tag.repository.TagRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -57,5 +59,22 @@ class TagServiceTest {
         assertThat(newTags.get(0).getName()).isEqualTo(TAG_2);
         assertThat(newTags.get(1).getName()).isEqualTo(tags.get(0));
         assertThat(newTags.get(2).getName()).isEqualTo(tags.get(2));
+    }
+
+    @Test
+    @DisplayName("태그 자동완성 조회에 성공한다.")
+    void getTagsByKeyword_success_1() {
+        // given
+        tagRepository.save(new Tag(TAG_1));
+        tagRepository.save(new Tag(TAG_2));
+        tagRepository.save(new Tag(TAG_3));
+        // when
+        TagsResponse tag = tagService.getTagsByKeyword("tag");
+        // then
+        List<TagElement> tags = tag.getTags();
+        assertThat(tag.getTags().size()).isEqualTo(3);
+        assertThat(tags.get(0).getName()).isEqualTo(TAG_1);
+        assertThat(tags.get(1).getName()).isEqualTo(TAG_2);
+        assertThat(tags.get(2).getName()).isEqualTo(TAG_3);
     }
 }

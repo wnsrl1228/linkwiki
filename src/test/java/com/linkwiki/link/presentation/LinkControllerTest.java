@@ -1,17 +1,11 @@
 package com.linkwiki.link.presentation;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.linkwiki.Member.dto.response.MemberResponse;
-import com.linkwiki.auth.dto.LoginTokens;
-import com.linkwiki.auth.dto.request.LoginRequest;
 import com.linkwiki.auth.infrastructure.JwtProvider;
-import com.linkwiki.auth.presentation.AuthController;
-import com.linkwiki.auth.service.AuthService;
 import com.linkwiki.global.config.WebConfig;
 import com.linkwiki.link.dto.LinkElement;
 import com.linkwiki.link.dto.request.LinkCreateRequest;
-import com.linkwiki.link.dto.request.LinkSearchRequest;
 import com.linkwiki.link.dto.response.LinksResponse;
 import com.linkwiki.link.service.LinkService;
 import com.linkwiki.tag.dto.TagElement;
@@ -120,7 +114,7 @@ class LinkControllerTest {
         LinksResponse linksResponse = LinksResponse.builder()
                 .links(List.of(linkElement))
                 .build();
-        given(linkService.findLinksByTags(any())).willReturn(linksResponse);
+        given(linkService.getLinksByTags(any())).willReturn(linksResponse);
 
         // when & then
         ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/links/search")

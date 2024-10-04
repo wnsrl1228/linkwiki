@@ -1,12 +1,13 @@
 package com.linkwiki.tag.service;
 
 import com.linkwiki.tag.domain.Tag;
+import com.linkwiki.tag.dto.response.TagsResponse;
 import com.linkwiki.tag.repository.TagRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -36,5 +37,12 @@ public class TagService {
                     }
                 })
                 .collect(Collectors.toList());
+    }
+
+    // keyword 를 포함한 태그 조회
+    public TagsResponse getTagsByKeyword(String keyword) {
+        // TODO : 추후 고도화 작업 진행할 예정
+        List<Tag> tagsByKeyword = tagRepository.findTagsByKeyword(keyword, PageRequest.of(0, 10));
+        return TagsResponse.of(tagsByKeyword);
     }
 }

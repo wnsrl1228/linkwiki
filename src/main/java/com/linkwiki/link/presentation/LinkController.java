@@ -32,7 +32,7 @@ public class LinkController {
     public ResponseEntity<LinksResponse> search(
             @ModelAttribute @Valid LinkSearchRequest linkSearchRequest
     ) {
-        return ResponseEntity.ok().body(linkService.findLinksByTags(linkSearchRequest));
+        return ResponseEntity.ok().body(linkService.getLinksByTags(linkSearchRequest));
     }
 
 }

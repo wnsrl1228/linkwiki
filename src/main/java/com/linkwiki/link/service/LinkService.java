@@ -65,7 +65,7 @@ public class LinkService {
 
     // 링크 조회
     @Transactional(readOnly = true)
-    public LinksResponse findLinksByTags(final LinkSearchRequest linkSearchRequest) {
+    public LinksResponse getLinksByTags(final LinkSearchRequest linkSearchRequest) {
         /**
          * TODO : - 추후 회원 유저의 조회 경우도 구현
          *        - 페이징 구현

@@ -6,7 +6,6 @@ import com.linkwiki.auth.dto.LoginTokens;
 import com.linkwiki.auth.dto.request.LoginRequest;
 import com.linkwiki.auth.dto.request.SignUpRequest;
 import com.linkwiki.auth.infrastructure.JwtProvider;
-import com.linkwiki.auth.repository.RefreshTokenRepository;
 import com.linkwiki.global.exception.AuthException;
 import com.linkwiki.global.exception.ErrorCode;
 import org.junit.jupiter.api.DisplayName;

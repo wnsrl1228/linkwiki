@@ -136,7 +136,7 @@ class LinkServiceTest {
             // given
             LinkSearchRequest linkSearchRequest = new LinkSearchRequest(categoryTag1.getId(), List.of(tag1.getId()));
             // when
-            LinksResponse linksResponse = linkService.findLinksByTags(linkSearchRequest);
+            LinksResponse linksResponse = linkService.getLinksByTags(linkSearchRequest);
 
             // then
             assertThat(linksResponse.getLinks().size()).isEqualTo(2);
@@ -151,7 +151,7 @@ class LinkServiceTest {
             // given
             LinkSearchRequest linkSearchRequest = new LinkSearchRequest(0L, List.of(tag1.getId()));
             // when
-            LinksResponse linksResponse = linkService.findLinksByTags(linkSearchRequest);
+            LinksResponse linksResponse = linkService.getLinksByTags(linkSearchRequest);
 
             // then
             assertThat(linksResponse.getLinks().size()).isEqualTo(3);
@@ -167,7 +167,7 @@ class LinkServiceTest {
             // given
             LinkSearchRequest linkSearchRequest = new LinkSearchRequest(0L, List.of(9999L));
             // when
-            LinksResponse linksResponse = linkService.findLinksByTags(linkSearchRequest);
+            LinksResponse linksResponse = linkService.getLinksByTags(linkSearchRequest);
             // then
             assertThat(linksResponse.getLinks().size()).isEqualTo(0);
         }

@@ -1,6 +1,7 @@
 package com.linkwiki.tag.service;
 
 import com.linkwiki.tag.domain.Tag;
+import com.linkwiki.tag.domain.TagState;
 import com.linkwiki.tag.dto.TagElement;
 import com.linkwiki.tag.dto.response.TagsResponse;
 import com.linkwiki.tag.repository.TagRepository;
@@ -65,9 +66,12 @@ class TagServiceTest {
     @DisplayName("태그 자동완성 조회에 성공한다.")
     void getTagsByKeyword_success_1() {
         // given
-        tagRepository.save(new Tag(TAG_1));
-        tagRepository.save(new Tag(TAG_2));
-        tagRepository.save(new Tag(TAG_3));
+        Tag tag1 = tagRepository.save(new Tag(TAG_1));
+        Tag tag2 = tagRepository.save(new Tag(TAG_2));
+        Tag tag3 = tagRepository.save(new Tag(TAG_3));
+        tag1.changeState(TagState.ACTIVE);
+        tag2.changeState(TagState.ACTIVE);
+        tag3.changeState(TagState.ACTIVE);
         // when
         TagsResponse tag = tagService.getTagsByKeyword("tag");
         // then

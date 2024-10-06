@@ -16,6 +16,7 @@ import com.linkwiki.link.repository.LinkHasTagRepository;
 import com.linkwiki.link.repository.LinkRepository;
 import com.linkwiki.link.repository.LinkResultRepository;
 import com.linkwiki.tag.domain.Tag;
+import com.linkwiki.tag.domain.TagState;
 import com.linkwiki.tag.repository.TagRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -211,6 +212,8 @@ class LinkServiceTest {
         // given
         Member member = memberRepository.save(new Member("username", "password", "nickname"));
         Link link1 = linkRepository.save(new Link(member, categoryTag1, "url1", "description1"));
+        Tag tag1 = tagRepository.save(new Tag("tag1"));
+        linkHasTagRepository.save(new LinkHasTag(link1, tag1));
         // when
         linkService.reviewLink(link1.getId(), new LinkReviewRequest(true, "이유입니다."));
         // then
@@ -218,6 +221,9 @@ class LinkServiceTest {
         em.clear();
         LinkResult linkResult = linkResultRepository.findById(link1.getId()).orElse(null);
         assertThat(link1.getState()).isEqualTo(LinkState.ACTIVE);
+        for (LinkHasTag linkHasTag : link1.getLinkHasTags()) {
+            assertThat(linkHasTag.getTag().getState()).isEqualTo(TagState.ACTIVE);
+        }
         assertThat(linkResult.getReason()).isEqualTo("이유입니다.");
     }
 

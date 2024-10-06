@@ -15,6 +15,7 @@ import com.linkwiki.link.repository.LinkHasTagRepository;
 import com.linkwiki.link.repository.LinkRepository;
 import com.linkwiki.link.repository.LinkResultRepository;
 import com.linkwiki.tag.domain.Tag;
+import com.linkwiki.tag.domain.TagState;
 import com.linkwiki.tag.repository.TagRepository;
 import com.linkwiki.tag.service.TagService;
 import lombok.RequiredArgsConstructor;
@@ -104,7 +105,15 @@ public class LinkService {
 
         linkResultRepository.save(new LinkResult(link, linkReviewRequest.getReason()));
 
-        link.changeState(linkReviewRequest.getResult() ? LinkState.ACTIVE : LinkState.REJECTED);
+        if (linkReviewRequest.getResult()) {
+            link.changeState(LinkState.ACTIVE);
+            for (LinkHasTag linkHasTag : link.getLinkHasTags()) {
+                linkHasTag.getTag().changeState(TagState.ACTIVE);
+            }
+            return;
+        }
+
+        link.changeState(LinkState.REJECTED);
     }
 
     // 운영자 전용 : 링크 수정

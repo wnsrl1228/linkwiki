@@ -37,4 +37,8 @@ public class Tag {
         this.name = name;
         state = TagState.REVIEW;
     }
+
+    public void changeState(TagState state) {
+        this.state = state;
+    }
 }

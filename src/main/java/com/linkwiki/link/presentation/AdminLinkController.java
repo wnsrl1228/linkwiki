@@ -2,6 +2,7 @@ package com.linkwiki.link.presentation;
 
 import com.linkwiki.auth.Admin;
 import com.linkwiki.auth.dto.AdminMember;
+import com.linkwiki.link.dto.LinkElement;
 import com.linkwiki.link.dto.request.LinkModifyRequest;
 import com.linkwiki.link.dto.request.LinkReviewRequest;
 import com.linkwiki.link.dto.response.LinksResponse;
@@ -24,7 +25,7 @@ public class AdminLinkController {
     ) {
         return ResponseEntity.ok().body(linkService.getLinksInReviewState());
     }
-    // 등록 api
+    // 검토 중인 링크 등록
     @PostMapping("/admin/links/{linkId}")
     public ResponseEntity<Void> reviewLink(
             @Admin final AdminMember adminMember,
@@ -34,6 +35,17 @@ public class AdminLinkController {
         linkService.reviewLink(linkId, linkReviewRequest);
         return ResponseEntity.ok().build();
     }
+    // 검토 중인 링크 수정 페이지
+    @GetMapping("/admin/links/{linkId}")
+    public ResponseEntity<LinkElement> getLinkForModification(
+            @Admin final AdminMember adminMember,
+            @PathVariable final Long linkId
+    ) {
+
+        return ResponseEntity.ok().body(linkService.getLinkById(linkId));
+    }
+
+    // 검토 중인 링크 수정
     @PatchMapping("/admin/links/{linkId}")
     public ResponseEntity<Void> modifyLink(
             @Admin final AdminMember adminMember,

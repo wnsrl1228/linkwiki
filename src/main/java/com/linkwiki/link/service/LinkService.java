@@ -5,6 +5,7 @@ import com.linkwiki.Member.repository.MemberRepository;
 import com.linkwiki.global.exception.ErrorCode;
 import com.linkwiki.global.exception.InvalidException;
 import com.linkwiki.link.domain.*;
+import com.linkwiki.link.dto.LinkElement;
 import com.linkwiki.link.dto.request.LinkCreateRequest;
 import com.linkwiki.link.dto.request.LinkModifyRequest;
 import com.linkwiki.link.dto.request.LinkReviewRequest;
@@ -163,5 +164,11 @@ public class LinkService {
         for (Tag newTag : newTags) {
             linkHasTagRepository.save(new LinkHasTag(link, newTag));
         }
+    }
+
+    public LinkElement getLinkById(Long linkId) {
+        Link link = linkRepository.findById(linkId)
+                .orElseThrow(() -> new InvalidException(ErrorCode.INVALID_REQUEST));
+        return LinkElement.of(link);
     }
 }

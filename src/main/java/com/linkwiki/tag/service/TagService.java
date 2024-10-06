@@ -1,6 +1,7 @@
 package com.linkwiki.tag.service;
 
 import com.linkwiki.tag.domain.Tag;
+import com.linkwiki.tag.domain.TagState;
 import com.linkwiki.tag.dto.response.TagsResponse;
 import com.linkwiki.tag.repository.TagRepository;
 import lombok.RequiredArgsConstructor;
@@ -42,7 +43,7 @@ public class TagService {
     // keyword 를 포함한 태그 조회
     public TagsResponse getTagsByKeyword(String keyword) {
         // TODO : 추후 고도화 작업 진행할 예정
-        List<Tag> tagsByKeyword = tagRepository.findTagsByKeyword(keyword, PageRequest.of(0, 10));
+        List<Tag> tagsByKeyword = tagRepository.findTagsByKeyword(keyword, TagState.ACTIVE, PageRequest.of(0, 10));
         return TagsResponse.of(tagsByKeyword);
     }
 }

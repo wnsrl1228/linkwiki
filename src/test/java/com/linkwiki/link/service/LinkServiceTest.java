@@ -4,19 +4,21 @@ import com.linkwiki.Member.domain.Member;
 import com.linkwiki.Member.repository.MemberRepository;
 import com.linkwiki.global.exception.ErrorCode;
 import com.linkwiki.global.exception.InvalidException;
-import com.linkwiki.link.domain.CategoryTag;
-import com.linkwiki.link.domain.Link;
-import com.linkwiki.link.domain.LinkHasTag;
-import com.linkwiki.link.domain.LinkState;
+import com.linkwiki.link.domain.*;
 import com.linkwiki.link.dto.LinkElement;
 import com.linkwiki.link.dto.request.LinkCreateRequest;
+import com.linkwiki.link.dto.request.LinkModifyRequest;
+import com.linkwiki.link.dto.request.LinkReviewRequest;
 import com.linkwiki.link.dto.request.LinkSearchRequest;
 import com.linkwiki.link.dto.response.LinksResponse;
 import com.linkwiki.link.repository.CategoryTagRepository;
 import com.linkwiki.link.repository.LinkHasTagRepository;
 import com.linkwiki.link.repository.LinkRepository;
+import com.linkwiki.link.repository.LinkResultRepository;
 import com.linkwiki.tag.domain.Tag;
 import com.linkwiki.tag.repository.TagRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -45,7 +47,11 @@ class LinkServiceTest {
     private MemberRepository memberRepository;
     @Autowired
     private TagRepository tagRepository;
+    @Autowired
+    private LinkResultRepository linkResultRepository;
 
+    @PersistenceContext
+    private EntityManager em;
     private CategoryTag categoryTag1;
     private CategoryTag categoryTag2;
 
@@ -68,6 +74,8 @@ class LinkServiceTest {
         // when
         Long linkId = linkService.createLink(member.getId(), linkCreateRequest);
         // then
+        em.flush();
+        em.clear();
         Link link = linkRepository.findById(linkId).orElse(null);
         assertThat(link.getId()).isEqualTo(1L);
         assertThat(link.getMember().getId()).isEqualTo(member.getId());
@@ -137,8 +145,9 @@ class LinkServiceTest {
             LinkSearchRequest linkSearchRequest = new LinkSearchRequest(categoryTag1.getId(), List.of(tag1.getId()));
             // when
             LinksResponse linksResponse = linkService.getLinksByTags(linkSearchRequest);
-
             // then
+            em.flush();
+            em.clear();
             assertThat(linksResponse.getLinks().size()).isEqualTo(2);
             List<LinkElement> links = linksResponse.getLinks();
             assertThat(links.get(0).getId()).isEqualTo(link1.getId());
@@ -154,6 +163,8 @@ class LinkServiceTest {
             LinksResponse linksResponse = linkService.getLinksByTags(linkSearchRequest);
 
             // then
+            em.flush();
+            em.clear();
             assertThat(linksResponse.getLinks().size()).isEqualTo(3);
             List<LinkElement> links = linksResponse.getLinks();
             assertThat(links.get(0).getId()).isEqualTo(link1.getId());
@@ -169,9 +180,79 @@ class LinkServiceTest {
             // when
             LinksResponse linksResponse = linkService.getLinksByTags(linkSearchRequest);
             // then
+            em.flush();
+            em.clear();
             assertThat(linksResponse.getLinks().size()).isEqualTo(0);
         }
     }
 
 
+    @Test
+    @DisplayName("검토중인 링크 조회에 성공한다.")
+    void getLinksInReviewState_success_1() {
+        // given
+        Member member = memberRepository.save(new Member("username", "password", "nickname"));
+        Link link1 = linkRepository.save(new Link(member, categoryTag1, "url1", "description1"));
+        link1.changeState(LinkState.ACTIVE);
+        Link link2 = linkRepository.save(new Link(member, categoryTag1, "url2", "description2"));
+        // when
+        LinksResponse linksResponse = linkService.getLinksInReviewState();
+        // then
+        em.flush();
+        em.clear();
+        List<LinkElement> links = linksResponse.getLinks();
+        assertThat(linksResponse.getLinks().size()).isEqualTo(1);
+        assertThat(links.get(0).getId()).isEqualTo(link2.getId());
+    }
+
+    @Test
+    @DisplayName("링크 검토에 성공한다.")
+    void reviewLink_success_1() {
+        // given
+        Member member = memberRepository.save(new Member("username", "password", "nickname"));
+        Link link1 = linkRepository.save(new Link(member, categoryTag1, "url1", "description1"));
+        // when
+        linkService.reviewLink(link1.getId(), new LinkReviewRequest(true, "이유입니다."));
+        // then
+        em.flush();
+        em.clear();
+        LinkResult linkResult = linkResultRepository.findById(link1.getId()).orElse(null);
+        assertThat(link1.getState()).isEqualTo(LinkState.ACTIVE);
+        assertThat(linkResult.getReason()).isEqualTo("이유입니다.");
+    }
+
+    /**
+     * link1의
+     *  tag1, tag2, tag3 -> tag1, tag2, tag4, tag5 로 수정
+     */
+    @Test
+    @DisplayName("링크 수정에 성공한다.")
+    void modifyLink_success_1() {
+        // given
+        Member member = memberRepository.save(new Member("username", "password", "nickname"));
+        Tag tag1 = tagRepository.save(new Tag("tag1"));
+        Tag tag2 = tagRepository.save(new Tag("tag2"));
+        Tag tag3 = tagRepository.save(new Tag("tag3"));
+        Tag tag4 = tagRepository.save(new Tag("tag4"));
+
+        Link link1 = linkRepository.save(new Link(member, categoryTag1, "url1", "description1"));
+        linkHasTagRepository.save(new LinkHasTag(link1, tag1));
+        linkHasTagRepository.save(new LinkHasTag(link1, tag2));
+        linkHasTagRepository.save(new LinkHasTag(link1, tag3));
+
+        // when
+        List<String> tagList = List.of("tag1", "tag2", "tag4", "Tag5");
+        LinkModifyRequest linkModifyRequest = new LinkModifyRequest(tagList);
+        linkService.modifyLink(link1.getId(), linkModifyRequest);
+        // then
+        em.flush();
+        em.clear();
+        Link link = linkRepository.findById(link1.getId()).orElse(null);
+        List<LinkHasTag> linkHasTags = link.getLinkHasTags();
+        assertThat(linkHasTags.size()).isEqualTo(linkModifyRequest.getTags().size());
+        for (int i = 0; i < tagList.size(); i++) {
+            assertThat(linkHasTags.get(i).getTag().getName()).isEqualTo(tagList.get(i));
+        }
+        assertThat(tagRepository.findAll().size()).isEqualTo(5);
+    }
 }

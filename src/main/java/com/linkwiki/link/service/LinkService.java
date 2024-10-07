@@ -20,6 +20,9 @@ import com.linkwiki.tag.domain.TagState;
 import com.linkwiki.tag.repository.TagRepository;
 import com.linkwiki.tag.service.TagService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -71,31 +74,30 @@ public class LinkService {
 
     // 링크 조회
     @Transactional(readOnly = true)
-    public LinksResponse getLinksByTags(final LinkSearchRequest linkSearchRequest) {
+    public LinksResponse getLinksByTags(final LinkSearchRequest linkSearchRequest, final Pageable pageable) {
         /**
          * TODO : - 추후 회원 유저의 조회 경우도 구현
-         *        - 페이징 구현
          */
 
-        List<Link> linksByTagIds = null;
+        Page<Link> linksByTagIds = null;
         // 카테고리가 전체인 경우
         if (linkSearchRequest.getCategoryTagId() == 0) {
-            linksByTagIds = linkHasTagRepository.findLinksByTagIds(linkSearchRequest.getTagId(), LinkState.ACTIVE);
+            linksByTagIds = linkRepository.findLinksByTagIds(linkSearchRequest.getTagId(), pageable);
         } else {
             // 카테고리가 전체가 아닌 경우
             // 3. 메인 카테고리 검증
             CategoryTag categoryTag = categoryTagRepository.findById(linkSearchRequest.getCategoryTagId())
                     .orElseThrow(() -> new InvalidException(ErrorCode.INVALID_REQUEST));
 
-            linksByTagIds = linkHasTagRepository.findLinksByTagIds(categoryTag, linkSearchRequest.getTagId(), LinkState.ACTIVE);
+            linksByTagIds = linkRepository.findLinksByTagIds(categoryTag, linkSearchRequest.getTagId(), pageable);
         }
         return LinksResponse.of(linksByTagIds);
     }
 
     // 운영자 전용 : 검토 대기중인 링크 조회
     @Transactional(readOnly = true)
-    public LinksResponse getLinksInReviewState() {
-        List<Link> links = linkRepository.findByState(LinkState.REVIEW);
+    public LinksResponse getLinksInReviewState(final Pageable pageable) {
+        Page<Link> links = linkRepository.findByState(LinkState.REVIEW, pageable);
         return LinksResponse.of(links);
     }
 

@@ -8,10 +8,14 @@ import com.linkwiki.link.dto.response.LinksResponse;
 import com.linkwiki.link.service.LinkService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+
+import static org.springframework.data.domain.Sort.Direction.DESC;
 
 @RequiredArgsConstructor
 @RestController
@@ -30,9 +34,10 @@ public class LinkController {
 
     @GetMapping("/links/search")
     public ResponseEntity<LinksResponse> search(
-            @ModelAttribute @Valid LinkSearchRequest linkSearchRequest
+            @ModelAttribute @Valid LinkSearchRequest linkSearchRequest,
+            @PageableDefault(sort = {"createdAt", "likeCount", "clickCount", "rating"}, direction = DESC) final Pageable pageable
     ) {
-        return ResponseEntity.ok().body(linkService.getLinksByTags(linkSearchRequest));
+        return ResponseEntity.ok().body(linkService.getLinksByTags(linkSearchRequest, pageable));
     }
 
 }

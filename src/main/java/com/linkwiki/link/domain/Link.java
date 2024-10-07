@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -29,9 +30,10 @@ public class Link {
     private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_tag")
+    @JoinColumn(name = "category_tag_id")
     private CategoryTag categoryTag;
 
+    @BatchSize(size = 20)
     @OneToMany(mappedBy = "link")
     private List<LinkHasTag> linkHasTags = new ArrayList<>();
 

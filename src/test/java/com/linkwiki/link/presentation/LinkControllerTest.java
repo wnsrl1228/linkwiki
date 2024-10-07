@@ -113,8 +113,14 @@ class LinkControllerTest {
                 .build();
         LinksResponse linksResponse = LinksResponse.builder()
                 .links(List.of(linkElement))
+                .page(0)
+                .totalPages(2)
+                .totalElement(24L)
+                .isFirst(true)
+                .isLast(false)
+                .isEmpty(true)
                 .build();
-        given(linkService.getLinksByTags(any())).willReturn(linksResponse);
+        given(linkService.getLinksByTags(any(), any())).willReturn(linksResponse);
 
         // when & then
         ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/links/search")
@@ -145,7 +151,13 @@ class LinkControllerTest {
                                 fieldWithPath("links[].tags[].id").description("태그의 ID"),
                                 fieldWithPath("links[].tags[].name").description("태그의 이름"),
                                 fieldWithPath("links[].createdAt").description("링크 생성일"),
-                                fieldWithPath("links[].updatedAt").description("링크 수정일")
+                                fieldWithPath("links[].updatedAt").description("링크 수정일"),
+                                fieldWithPath("page").description("현재 페이지"),
+                                fieldWithPath("totalPages").description("전체 페이지 개수"),
+                                fieldWithPath("totalElement").description("전체 요소 개수"),
+                                fieldWithPath("isFirst").description("첫번째 페이지 여부"),
+                                fieldWithPath("isLast").description("마지막 페이지 여부"),
+                                fieldWithPath("isEmpty").description("빈값 여부")
                         )));
     }
 }

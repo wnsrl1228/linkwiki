@@ -9,8 +9,12 @@ import com.linkwiki.link.dto.response.LinksResponse;
 import com.linkwiki.link.service.LinkService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import static org.springframework.data.domain.Sort.Direction.DESC;
 
 @RestController
 @RequiredArgsConstructor
@@ -21,9 +25,11 @@ public class AdminLinkController {
     // 검토 대기중인 링크 리스트 조회
     @GetMapping("/admin/links")
     public ResponseEntity<LinksResponse> getLinksInReviewState(
-            @Admin final AdminMember adminMember
+            @Admin final AdminMember adminMember,
+            @PageableDefault(sort = {"createdAt"}, direction = DESC) final Pageable pageable
+
     ) {
-        return ResponseEntity.ok().body(linkService.getLinksInReviewState());
+        return ResponseEntity.ok().body(linkService.getLinksInReviewState(pageable));
     }
     // 검토 중인 링크 등록
     @PostMapping("/admin/links/{linkId}")

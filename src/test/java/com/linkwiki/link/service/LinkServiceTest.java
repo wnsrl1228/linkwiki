@@ -23,6 +23,7 @@ import jakarta.persistence.PersistenceContext;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -145,7 +146,7 @@ class LinkServiceTest {
             // given
             LinkSearchRequest linkSearchRequest = new LinkSearchRequest(categoryTag1.getId(), List.of(tag1.getId()));
             // when
-            LinksResponse linksResponse = linkService.getLinksByTags(linkSearchRequest);
+            LinksResponse linksResponse = linkService.getLinksByTags(linkSearchRequest, PageRequest.of(0, 20));
             // then
             em.flush();
             em.clear();
@@ -161,7 +162,7 @@ class LinkServiceTest {
             // given
             LinkSearchRequest linkSearchRequest = new LinkSearchRequest(0L, List.of(tag1.getId()));
             // when
-            LinksResponse linksResponse = linkService.getLinksByTags(linkSearchRequest);
+            LinksResponse linksResponse = linkService.getLinksByTags(linkSearchRequest, PageRequest.of(0, 20));
 
             // then
             em.flush();
@@ -179,7 +180,7 @@ class LinkServiceTest {
             // given
             LinkSearchRequest linkSearchRequest = new LinkSearchRequest(0L, List.of(9999L));
             // when
-            LinksResponse linksResponse = linkService.getLinksByTags(linkSearchRequest);
+            LinksResponse linksResponse = linkService.getLinksByTags(linkSearchRequest, PageRequest.of(0, 20));
             // then
             em.flush();
             em.clear();
@@ -197,7 +198,7 @@ class LinkServiceTest {
         link1.changeState(LinkState.ACTIVE);
         Link link2 = linkRepository.save(new Link(member, categoryTag1, "url2", "description2"));
         // when
-        LinksResponse linksResponse = linkService.getLinksInReviewState();
+        LinksResponse linksResponse = linkService.getLinksInReviewState(PageRequest.of(0, 20));
         // then
         em.flush();
         em.clear();

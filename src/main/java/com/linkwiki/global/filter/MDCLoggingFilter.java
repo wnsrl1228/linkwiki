@@ -20,7 +20,14 @@ public class MDCLoggingFilter implements Filter {
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         MDC.put("request_id", UUID.randomUUID().toString());
-        log.info("[Request received: {} {}]", request.getMethod(), request.getRequestURI());
+
+        // 요청 URL 구성
+        String requestURI = request.getRequestURI();
+        String queryString = request.getQueryString();
+        String fullUrl = requestURI + (queryString != null ? "?" + queryString : "");
+
+        log.info("[Request received: {} {}]", request.getMethod(), fullUrl);
+
         filterChain.doFilter(servletRequest, servletResponse);
         MDC.clear();
     }

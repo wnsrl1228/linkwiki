@@ -5,6 +5,7 @@ import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.PathBuilder;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -37,8 +38,7 @@ public class LinkCustomRepositoryImpl implements LinkCustomRepository{
         QLinkHasTag linkHasTag = QLinkHasTag.linkHasTag;
 
         // where절 조건
-        BooleanExpression condition = link.state.eq(LinkState.ACTIVE)
-                .and(linkHasTag.tag.id.in(tagIds));
+        BooleanExpression condition = link.state.eq(LinkState.ACTIVE);
 
         // 카테고리 태그가 null이 아닌 경우 추가 조건
         if (categoryTag != null) {
@@ -50,8 +50,8 @@ public class LinkCustomRepositoryImpl implements LinkCustomRepository{
                 .leftJoin(link.linkHasTags, linkHasTag)
                 .join(link.member).fetchJoin()
                 .join(link.categoryTag).fetchJoin()
-                .where(condition)
-                .groupBy(linkHasTag.link)
+                .where(condition.and(linkHasTag.tag.id.in(tagIds)))
+                .groupBy(link.id)
                 .having(linkHasTag.tag.count().eq(Long.valueOf(tagIds.size())))
                 .offset(pageable.getOffset())
                 .orderBy(getOrderSpecifier(pageable.getSort()).toArray(OrderSpecifier[]::new))
@@ -61,8 +61,16 @@ public class LinkCustomRepositoryImpl implements LinkCustomRepository{
         JPAQuery<Long> countQuery = queryFactory
                 .select(link.count())
                 .from(link)
-                .where(condition);
-
+                .where(
+                        link.id.in(
+                                JPAExpressions.select(link.id)
+                                        .from(link)
+                                        .leftJoin(link.linkHasTags, linkHasTag)
+                                        .where(condition.and(linkHasTag.tag.id.in(tagIds)))
+                                        .groupBy(link.id)
+                                        .having(linkHasTag.tag.count().eq(Long.valueOf(tagIds.size())))
+                        )
+                );
         return PageableExecutionUtils.getPage(lists, pageable, countQuery::fetchOne);
     }
 
@@ -72,7 +80,6 @@ public class LinkCustomRepositoryImpl implements LinkCustomRepository{
                     Order direction = order.isAscending() ? Order.ASC : Order.DESC;
                     PathBuilder<Link> orderByExpression = new PathBuilder<>(Link.class, "link");
                     return new OrderSpecifier(direction, orderByExpression.get(order.getProperty()));
-                })
-                .toList();
+                }).toList();
     }
 }

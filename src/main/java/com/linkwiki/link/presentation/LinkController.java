@@ -35,7 +35,7 @@ public class LinkController {
     @GetMapping("/links/search")
     public ResponseEntity<LinksResponse> search(
             @ModelAttribute @Valid LinkSearchRequest linkSearchRequest,
-            @PageableDefault(sort = {"createdAt", "likeCount", "clickCount", "rating"}, direction = DESC) final Pageable pageable
+            @PageableDefault(sort = "createdAt", direction = DESC, size = 20) final Pageable pageable
     ) {
         return ResponseEntity.ok().body(linkService.getLinksByTags(linkSearchRequest, pageable));
     }

@@ -104,6 +104,7 @@ class AdminLinkControllerTest {
         // when & then
         ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/admin/links")
                         .header(AUTHORIZATION, "Bearer access-token")
+                        .param("page", "0")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print());

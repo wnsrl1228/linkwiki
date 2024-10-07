@@ -126,6 +126,7 @@ class LinkControllerTest {
         ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/links/search")
                         .param("categoryTagId", "1") // 단일 값
                         .param("tagId", List.of("1", "2").toArray(new String[0]))
+                        .param("page", "0")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print());
